@@ -1,0 +1,10 @@
+FROM andrius/alpine-ruby:3.10
+
+WORKDIR /app
+COPY webapp.rb .
+
+RUN addgroup -S appgroup && adduser -S -g appgroup appuser && chown -R appuser:appgroup /app
+
+USER appuser
+
+CMD ["ruby", "webapp.rb"]

@@ -1,0 +1,29 @@
+apiVersion: k3d.io/v1alpha3
+kind: Simple
+name: my-app-cluster
+# volumes:
+#   - volume: /etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt
+kubeAPI:
+  # host: "localhost" # important for the `server` setting in the kubeconfig
+  hostIP: "127.0.0.1" # where the Kubernetes API will be listening on
+  hostPort: "6445"
+options:
+  k3d:
+      wait: true
+  kubeconfig:
+    updateDefaultKubeconfig: true
+    switchCurrentContext: true
+  # k3s:
+  #   extraArgs:
+  #     - arg: "--disable=traefik"
+  #       nodeFilters:
+  #         - server:*
+ports:
+  - port: 8080:80
+    nodeFilters:
+      - loadbalancer
+registries: # define how registries should be created or used
+  create: # creates a default registry to be used with the cluster; same as `--registry-create registry.localhost`
+    name: registry.localhost
+    host: "localhost"
+    hostPort: "5000"
