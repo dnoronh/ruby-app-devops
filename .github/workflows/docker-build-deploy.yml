@@ -1,5 +1,6 @@
 name: docker-build-deploy
 
+# For demo purpose, manual run is used. Ideally the workflow should run on commit push
 on:
   workflow_dispatch:
     inputs:
