@@ -2,10 +2,20 @@ name: docker-build-deploy
 
 on:
   workflow_dispatch:
-  push:
-    branches: [ "initial" ]
+    inputs:
+      app_version:
+        required: true
+        default: '2.0'
+        type: choice
+        description: Version of Ruby app to build and deploy
+        options: 
+        - "1.0"
+        - "2.0"
+  # push:
+  #   branches: [ "initial" ]
 
 jobs:
+  #This build job is only for demo purpose. Actual build happens in local, as we are using k3d local registry.
   docker-build:
     runs-on: ubuntu-latest
     steps:
@@ -27,8 +37,10 @@ jobs:
       run: |
           git_hash=$(git rev-parse --short "$GITHUB_SHA")
           chmod +x ./docker-build/update-tag.sh
-          git config --global user.email "delnor10@github.com"
-          git config --global user.name "dnoronh"
+          git config --global user.email "{GITHUB_ACTOR}@github.com"
+          git config --global user.name "{GITHUB_ACTOR}"
 
+          #Override for local setup
+          git_hash=${{ inputs.app_version }} 
           ./docker-build/update-tag.sh $git_hash
           echo "Updated image version to $git_hash"
