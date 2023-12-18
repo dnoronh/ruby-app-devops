@@ -27,8 +27,8 @@ jobs:
       run: |
           git_hash=$(git rev-parse --short "$GITHUB_SHA")
           chmod +x ./docker-build/update-tag.sh
-          git config --global user.email "${GITHUB_ACTOR}@github.com"
-          git config --global user.name "${GITHUB_ACTOR}"
+          git config --global user.email "delnor10@github.com"
+          git config --global user.name "dnoronh"
 
           ./docker-build/update-tag.sh $git_hash
           echo "Updated image version to $git_hash"
