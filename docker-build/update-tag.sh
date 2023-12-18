@@ -1,7 +1,7 @@
 #!/bin/bash
 new_tag=$1
 cd /tmp
-git clone https://${GITHUB_TOKEN}@github.com/dnoronh/ruby-app-gitops-repo.git && cd ruby-app-gitops-repo/deployment/ruby-app
+git clone https://dnoronh:${GITHUB_TOKEN}@github.com/dnoronh/ruby-app-gitops-repo.git && cd ruby-app-gitops-repo/deployment/ruby-app
 cur_tag=$(cat ./values.yaml | grep tag: | awk '{print $2}')
 echo $cur_tag
 echo $new_tag
