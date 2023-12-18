@@ -28,7 +28,7 @@ install(){
 #docker-build:
     echo ""
     echo "----------DOCKER BUILD 1.0------"
-    docker build -t localhost:5000/ruby-app:1.0 ./docker-build/1
+    docker build -t localhost:5000/ruby-app:1.0 ./docker-build/1.0
     docker push localhost:5000/ruby-app:1.0
 
 #deploy-argocd
