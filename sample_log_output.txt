@@ -1,0 +1,141 @@
+
+----------CLEANUP RESOURCES------
+[36mINFO[0m[0000] Deleting cluster 'my-app-cluster'            
+[36mINFO[0m[0004] Deleting cluster network 'k3d-my-app-cluster' 
+[36mINFO[0m[0005] Deleting 1 attached volumes...               
+[36mINFO[0m[0005] Removing cluster details from default kubeconfig... 
+[36mINFO[0m[0005] Removing standalone kubeconfig file (if there is one)... 
+[36mINFO[0m[0005] Successfully deleted cluster my-app-cluster! 
+Untagged: localhost:5000/ruby-app:1.0
+Cleanup Successful
+
+----------CREATE CLUSTER------
+[36mINFO[0m[0000] Using config file ./cluster-setup/my-app-cluster.yaml (k3d.io/v1alpha3#simple) 
+[36mINFO[0m[0000] portmapping '80:80' targets the loadbalancer: defaulting to [servers:*:proxy agents:*:proxy] 
+[36mINFO[0m[0000] Prep: Network                                
+[36mINFO[0m[0000] Created network 'k3d-my-app-cluster'         
+[36mINFO[0m[0000] Created image volume k3d-my-app-cluster-images 
+[36mINFO[0m[0000] Creating node 'registry.localhost'           
+[36mINFO[0m[0000] Successfully created registry 'registry.localhost' 
+[36mINFO[0m[0000] Starting new tools node...                   
+[36mINFO[0m[0000] Starting Node 'k3d-my-app-cluster-tools'     
+[36mINFO[0m[0001] Creating node 'k3d-my-app-cluster-server-0'  
+[36mINFO[0m[0001] Creating LoadBalancer 'k3d-my-app-cluster-serverlb' 
+[36mINFO[0m[0001] Using the k3d-tools node to gather environment information 
+[36mINFO[0m[0002] Starting new tools node...                   
+[36mINFO[0m[0002] Starting Node 'k3d-my-app-cluster-tools'     
+[36mINFO[0m[0003] Starting cluster 'my-app-cluster'            
+[36mINFO[0m[0003] Starting servers...                          
+[36mINFO[0m[0003] Starting Node 'k3d-my-app-cluster-server-0'  
+[36mINFO[0m[0007] All agents already running.                  
+[36mINFO[0m[0007] Starting helpers...                          
+[36mINFO[0m[0007] Starting Node 'registry.localhost'           
+[36mINFO[0m[0007] Starting Node 'k3d-my-app-cluster-serverlb'  
+[36mINFO[0m[0014] Injecting records for hostAliases (incl. host.k3d.internal) and for 4 network members into CoreDNS configmap... 
+[36mINFO[0m[0017] Cluster 'my-app-cluster' created successfully! 
+[36mINFO[0m[0017] You can now use it like this:                
+kubectl cluster-info
+namespace/app created
+namespace/argocd created
+
+----------DOCKER BUILD 1.0------
+The push refers to repository [localhost:5000/ruby-app]
+588b7158207f: Preparing
+7f0126b6cce0: Preparing
+1fb92b046672: Preparing
+f0d5ed437b33: Preparing
+15f2dcb92928: Preparing
+9fb3aa2f8b80: Preparing
+9fb3aa2f8b80: Waiting
+7f0126b6cce0: Pushed
+15f2dcb92928: Pushed
+1fb92b046672: Pushed
+588b7158207f: Pushed
+9fb3aa2f8b80: Pushed
+f0d5ed437b33: Pushed
+1.0: digest: sha256:dd74e9e4711b0ed6efa72814b3ab7393a4d13b46fae38bdc03738c2d3f528989 size: 1567
+
+----------DEPLOY ARGOCD---------
+"argo" already exists with the same configuration, skipping
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "argo" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Deploying ArgoCD
+Release "argocd" does not exist. Installing it now.
+NAME: argocd
+LAST DEPLOYED: Tue Dec 19 08:36:45 2023
+NAMESPACE: argocd
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+DEPRECATED option server.extraArgs."--insecure" - Use configs.params.server.insecure
+
+In order to access the server UI you have the following options:
+
+1. kubectl port-forward service/argocd-server -n argocd 8080:443
+
+    and then open the browser on http://localhost:8080 and accept the certificate
+
+2. enable ingress in the values file `server.ingress.enabled` and either
+      - Add the annotation for ssl passthrough: https://argo-cd.readthedocs.io/en/stable/operator-manual/ingress/#option-1-ssl-passthrough
+      - Set the `configs.params."server.insecure"` in the values file and terminate SSL at your ingress: https://argo-cd.readthedocs.io/en/stable/operator-manual/ingress/#option-2-multiple-ingress-objects-and-hosts
+
+
+After reaching the UI the first time you can login with username: admin and the random password generated during the installation. You can find the password by running:
+
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+
+(You should delete the initial secret afterwards as suggested by the Getting Started Guide: https://argo-cd.readthedocs.io/en/stable/getting_started/#4-login-using-the-cli)
+configmap/argocd-cm patched
+applicationset.argoproj.io/ruby-application-appset created
+
+Waiting for ArgoCD to sync the changes...
+
+----------VALIDATION------------
+kubectl get pods -A
+NAMESPACE     NAME                                                READY   STATUS      RESTARTS   AGE
+kube-system   local-path-provisioner-957fdf8bc-qd42q              1/1     Running     0          75s
+kube-system   coredns-77ccd57875-kfz6k                            1/1     Running     0          75s
+argocd        argocd-redis-75979dc6d9-d9qn9                       1/1     Running     0          66s
+kube-system   helm-install-traefik-crd-5n4f7                      0/1     Completed   0          75s
+argocd        argocd-applicationset-controller-5c4944cf58-k56s7   1/1     Running     0          66s
+argocd        argocd-notifications-controller-84588546bf-x254b    1/1     Running     0          66s
+kube-system   helm-install-traefik-rhmft                          0/1     Completed   1          75s
+kube-system   svclb-traefik-1e21b6e8-5v2n2                        2/2     Running     0          50s
+argocd        argocd-dex-server-7c48c7fd55-92hpn                  1/1     Running     0          66s
+kube-system   traefik-64f55bb67d-qp9lk                            1/1     Running     0          50s
+kube-system   metrics-server-648b5df564-sltd4                     1/1     Running     0          75s
+argocd        argocd-repo-server-8646ff4496-2kgt6                 1/1     Running     0          66s
+argocd        argocd-server-67bb4847f8-xf8hm                      1/1     Running     0          66s
+argocd        argocd-application-controller-0                     1/1     Running     0          65s
+app           ruby-app-868cc88cb7-5s5x6                           1/1     Running     0          28s
+app           ruby-app-868cc88cb7-ppf9z                           1/1     Running     0          28s
+app           ruby-app-868cc88cb7-jqhrt                           1/1     Running     0          28s
+
+###  Validating application  ###
+
+curl -ksi http://127.0.0.1/
+
+HTTP/1.1 200 OK
+Content-Length: 38
+Date: Tue, 19 Dec 2023 03:07:52 GMT
+Content-Type: text/plain; charset=utf-8
+
+Well, hello there! This is version 1.0
+
+curl -ksi http://127.0.0.1/healthcheck
+
+HTTP/1.1 200 OK
+Content-Length: 2
+Date: Tue, 19 Dec 2023 03:07:52 GMT
+Content-Type: text/plain; charset=utf-8
+
+OK
+
+Link to Argocd Dashboard - http://127.0.0.1:9090/
+
+ArgoCD Admin username : admin
+ArgoCD Admin password : Ti7m9KInmOyO2gdc
+
+Setup completed Successfully.

@@ -19,7 +19,7 @@ options:
   #       nodeFilters:
   #         - server:*
 ports:
-  - port: 8080:80
+  - port: 80:80
     nodeFilters:
       - loadbalancer
 registries: # define how registries should be created or used

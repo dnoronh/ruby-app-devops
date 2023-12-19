@@ -34,44 +34,54 @@ install(){
 #deploy-argocd
     echo ""
     echo "----------DEPLOY ARGOCD---------"
-    kubectl config use-context k3d-my-app-cluster
     helm repo add argo https://argoproj.github.io/argo-helm
     helm repo update
-    helm upgrade -i argocd argo/argo-cd --version 5.35.0 \
-    -f ./argocd/values.yaml -n argocd --wait
+    echo "Deploying ArgoCD"
+    helm upgrade -i argocd argo/argo-cd --version 5.35.0 -n argocd \
+    --set dex.image.repository=rancher/mirrored-dexidp-dex \
+    --set server.extraArgs[0]="--insecure" --wait
 
-    sleep 10
-
+    sleep 4
     #Modify sync time in argocd to 10s
-    kubectl patch configmap argocd-cm -n argocd --type merge --patch '{"data":{"timeout.reconciliation":"10s"}}'
+    kubectl patch configmap argocd-cm -n argocd --type merge --patch '{"data":{"timeout.reconciliation":"5s"}}'
     
     kubectl port-forward svc/argocd-server -n argocd 9090:80 > /dev/null &
     ARGO_PWD=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
 
 #deploy-argocd-app:
     kubectl apply -f ./argocd/ruby-app/application-set.yaml
+    echo ""
+    echo "Waiting for ArgoCD to sync the changes..."
+    sleep 15
 
 #validation
     echo ""
     echo "----------VALIDATION------------"
-    sleep 10
+    sleep 15
+    echo "kubectl get pods -A"
     kubectl get pods -A
 
     echo ""
-    echo "Validating application"
-    curl -ksi http://127.0.0.1:80
-
-    echo "Link to Argocd Dashboard - http://127.0.0.1:9090/
+    echo "###  Validating application  ###"
+    echo ""
+    echo "curl -ksi http://127.0.0.1/"
+    echo ""
+    curl -ksi http://127.0.0.1/
+    echo ""
+    echo "curl -ksi http://127.0.0.1/healthcheck"
+    echo ""
+    curl -ksi http://127.0.0.1/healthcheck
 
     echo ""
+    echo "Link to Argocd Dashboard - http://127.0.0.1:9090/"
+    echo ""
+
     echo "ArgoCD Admin username : admin"
     echo "ArgoCD Admin password : $ARGO_PWD"
 
-    
     echo ""
-    echo "Setup completed Successfully.
+    echo "Setup completed Successfully."
 }
-
 
 
 if [ "$1" == "cleanup" ]; then

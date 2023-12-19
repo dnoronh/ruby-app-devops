@@ -38,8 +38,8 @@ jobs:
       run: |
           git_hash=$(git rev-parse --short "$GITHUB_SHA")
           chmod +x ./docker-build/update-tag.sh
-          git config --global user.email "{GITHUB_ACTOR}@github.com"
-          git config --global user.name "{GITHUB_ACTOR}"
+          git config --global user.email "demo_bot@github.com"
+          git config --global user.name "demo_bot"
 
           #Override for local setup
           git_hash=${{ inputs.app_version }} 

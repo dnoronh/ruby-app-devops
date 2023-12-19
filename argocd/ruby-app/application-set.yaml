@@ -30,7 +30,7 @@ spec:
       source:
         repoURL: https://github.com/dnoronh/ruby-app-gitops-repo.git
         path: deployment/ruby-app
-        targetRevision: initial
+        targetRevision: main
       destination:
         server: '{{url}}'
         namespace: '{{namespace}}'
