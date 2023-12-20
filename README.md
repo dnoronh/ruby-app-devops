@@ -18,6 +18,9 @@ The below components are deployed as part of this setup.
 
 Manifest repository - https://github.com/dnoronh/ruby-app-gitops-repo
 
+## Diagram
+![](./ruby-app.png)
+
 ## Tools and pre-requisites
 
 This setup works only in Linux OS having Docker and Bash.
