@@ -16,6 +16,10 @@ cleanup(){
 
 install(){
 
+#Make sure tools are installed
+    curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | TAG=v5.6.0 bash
+    command -v k3d -v kubectl && command -v helm && command -v docker || { echo "Error: One or more required tools not found."; exit 1; }
+
     cleanup
 #create-app-cluster
     echo ""
@@ -30,6 +34,10 @@ install(){
     echo "----------DOCKER BUILD 1.0------"
     docker build -t localhost:5000/ruby-app:1.0 ./docker-build/1.0
     docker push localhost:5000/ruby-app:1.0
+    echo ""
+    echo "----------DOCKER BUILD 2.0------"
+    docker build -t localhost:5000/ruby-app:2.0 ./docker-build/2.0
+    docker push localhost:5000/ruby-app:2.0
 
 #deploy-argocd
     echo ""

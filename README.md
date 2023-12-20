@@ -4,7 +4,7 @@ This project showcases a robust solution for containerizing, orchestrating and d
 
 The Ruby application is containerized and deployed to Kubernetes cluster using ArgoCD.
 
-Detailed installation guide with screenshots - ![HERE](./installation_guide.docx)
+Detailed installation guide with screenshots - ![HERE](./ruby-app-project-results.docx)
 
 ## Setup
 
@@ -16,6 +16,11 @@ The below components are deployed as part of this setup.
 * Helm – To manifest Kubernetes deployments
 * ArgoCD – For Kubernetes deployments
 
+Manifest repository - https://github.com/dnoronh/ruby-app-gitops-repo
+
+## Diagram
+![](./ruby-app.png)
+
 ## Tools and pre-requisites
 
 This setup works only in Linux OS having Docker and Bash.
@@ -24,6 +29,7 @@ Internet connectivity is required to download docker images from dockerHub.
 
 Below tools are required in you machine for this setup.
 
+* K3D – To deploy K8s cluster locally and for local container registry. Get it ![HERE](https://k3d.io/v5.6.0/#installation)
 * Kubectl - to interact to Kubernetes cluster. https://kubernetes.io/docs/tasks/tools/
 * Helm - for helm deployments. Get it ![HERE](https://helm.sh/docs/intro/install/)
 * Docker engine
@@ -50,10 +56,12 @@ kubectl get pods -A
 
 The script will perform the below actions
 1)	Create K3D cluster
-2)	Create docker image for ruby app
-3)	Deploy ArgoCD using helm charts
-4)	Create ArgoCD applicationSet for ruby app
-5)	Port forwarding of ArgoCD service.
+2)	Create docker image 1.0 for ruby app
+3)	Create docker image 2.0 for ruby app
+4)	Deploy Argo CD tool using helm charts
+5)	Create Argo CD application for ruby app
+6)	Port forwarding of Argo CD service.
+
 
 ## Validation
 
@@ -74,6 +82,18 @@ We can see that image version '1.0' is deployed to Kubernetes by ArgoCD
 As best practices for GitOps, we have the manifests in a different Gihub Repo. ArgoCD will be monitoring this repository. - https://github.com/dnoronh/ruby-app-gitops-repo
 ArgoCD monitors this repository
 
+If you are not able to open the UI, please validate if port forward is enabled
+Command 
+```bash
+ps -f | grep port-forward
+```
+
+Run command below command to enable port forwarding if not already enabled
+
+```bash
+kubectl port-forward svc/argocd-server -n argocd 9090:80 > /dev/null &
+```
+
 ## Deploy newer version of Image - GITOPS using ArgoCD
 
 To perform the build and deploy of version 2.0 of the app, we will use GitHub Actions workflow.
@@ -87,13 +107,10 @@ ArgoCD will sync the changes to the cluster and deploy the new version 2.0
 Build 
 To demonstrate this in our local cluster, 
 
-Build 2.0 version of docker app from ./docker-build/2 directory by running below command
-
-```bash
-./upgrade_app.sh
-```
+In our case, image 2.0 version is already built during installation. We just need to run the Github actions pipeline to update the tag in helm values.
 
 Run the GitHub actions workflow manually by passing app_version as 2.0
+
 This will update the version in the manifest repository, where argocd is monitoring. 
 
 Observe the changes in argoCD or by sending a request to the app. 
@@ -103,12 +120,14 @@ You will observe that a rolling deployment to version 2.0 of the app done.
 curl -kis http://127.0.0.1/healthcheck
 ```
 
+In this scenario, we could setup multiple K3D clusters and use Argo CD to demonstrate multi-cluster deployments, but due to short time available, I am restricting it to single cluster.
+
 ## Cleanup
 
 To cleanup the setup, run the below command
 
 ```bash
-./install_setup.sh
+./install_setup.sh cleanup
 ```
 
 ## Feedback
